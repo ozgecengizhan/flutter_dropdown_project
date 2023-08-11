@@ -21,6 +21,7 @@ int saniye = 1 ;
 int currentColorIndex = 0;
 int stopCurrentColorIndex = 0;
 int currentIndexValue = 0; 
+int currentStepIndex = 0;
 bool isAnimating = false;
 bool isStopped = false;
 bool start = true;

@@ -257,7 +257,7 @@ class MyAppState extends State<MyApp> {
             child: Column(
               children: <Widget>[
                 buildColorChangingContainer(),           // En üstte animasyon ekranı 
-                const SizedBox(height: 50.0),            // Animasyon ekranı ile input,output,timer kutularının mesafesi
+                const SizedBox(height: 10.0),            // Animasyon ekranı ile input,output,timer kutularının mesafesi
                 SizedBox(
                   height: 100.0,
                   child: ListView(
@@ -269,7 +269,7 @@ class MyAppState extends State<MyApp> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 10.0),
                 DragTarget<Color>(
                   builder: (BuildContext context, List<Color?> candidateData, List<dynamic> rejectedData) {
                     Color displayColor = Colors.grey;
@@ -333,23 +333,6 @@ class MyAppState extends State<MyApp> {
                         child: Text('Stop', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       ),
                       ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          isAnimating = false;
-                          stopCurrentColorIndex = 0;
-                          currentColor = targetColors.isNotEmpty ? targetColors[0] : Colors.grey;
-                          borderStatus = List<bool>.filled(targetColors.length, false);
-                          isStartButtonDisabled = false;
-                          VeriSifirla();
-                        });
-                      },
-                      child: Text('Restart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    ),
-                    ],
-                  ),
-                ),
-                Row(children: [
-                    ElevatedButton(
                         onPressed: () {
                           setState(() {
                             start = false;
@@ -372,37 +355,55 @@ class MyAppState extends State<MyApp> {
                         child: Text('Delete', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       ),
                       ElevatedButton(
-                        onPressed: showDelayMillis,
-                        child: Text('Cycle Speed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      ),
-                ],),
-                Row(children: [
+                      onPressed: () {
+                        setState(() {
+                          isAnimating = false;
+                          stopCurrentColorIndex = 0;
+                          currentColor = targetColors.isNotEmpty ? targetColors[0] : Colors.grey;
+                          borderStatus = List<bool>.filled(targetColors.length, false);
+                          isStartButtonDisabled = false;
+                          VeriSifirla();
+                        });
+                      },
+                      child: Text('Restart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    ),
+                    ],
+                  ),
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(children: [
                     ElevatedButton(
                         onPressed: () {
                           if(!isAnimating){
                             oneCycleAnimation();
                           }
                         },
-                        child: Text('One Cycle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        child: Text('One Cycle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       ),
-                      ElevatedButton(
-                        onPressed:() {
-                          if(!isAnimating){
-                            stepForwardAnimation();
-                            VeriSifirla();
-                          }
-                        },
-                         child: Text('Step Forward', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                        ),
+                      // ElevatedButton(
+                      //   onPressed:() {
+                      //     if(!isAnimating){
+                      //       stepForwardAnimation();
+                      //       VeriSifirla();
+                      //     }
+                      //   },
+                      //    child: Text('Step Forward', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      //   ),
+                        // ElevatedButton(
+                        // onPressed:() {
+                        //   if(!isAnimating){
+                        //     backStepAnimation();
+                        //   }
+                        // },
+                        //  child: Text('Back Step', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        // ),
                         ElevatedButton(
-                        onPressed:() {
-                          if(!isAnimating){
-                            backForwardAnimation();
-                          }
-                        },
-                         child: Text('Back Forward', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                        ),
+                        onPressed: showDelayMillis,
+                        child: Text('Cycle Speed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      ),
                 ],)
+                ),
               ],
             ),
           ),
@@ -534,11 +535,11 @@ void stepForwardAnimation() {
   if (!isAnimating) {  
     setState(() {
       isAnimating = true;  
-      if (currentColorIndex < targetColors.length - 1) {
+      if (currentColorIndex < targetColors.length) {
         if (currentColor == Color(0xffffffff)) {
           Future.delayed(Duration(milliseconds: timerValues[currentColorIndex])).then((_) {
             setState(() {
-              currentColorIndex++;
+              currentStepIndex++;
               if (currentColorIndex < targetColors.length) {
                 currentColor = targetColors[currentColorIndex];
                 borderStatus = List<bool>.filled(targetColors.length, false);
@@ -562,7 +563,7 @@ void stepForwardAnimation() {
 }
 
 
-void backForwardAnimation() {
+void backStepAnimation() {
   setState(() {
     if (currentColorIndex > 0) {
       currentColorIndex--; 

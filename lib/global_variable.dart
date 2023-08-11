@@ -26,6 +26,7 @@ bool isStopped = false;
 bool start = true;
 bool dongude_start_kontrol = false;
 bool isStartButtonDisabled = false;
+bool animasyonadevam = true;
 Map<int, String> choise_deger = {};
 Map<int, String> targetDurumMap = {};
 Map<int, int> targetAdimMap = {};

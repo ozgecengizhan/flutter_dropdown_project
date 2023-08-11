@@ -340,6 +340,7 @@ class MyAppState extends State<MyApp> {
                           currentColor = targetColors.isNotEmpty ? targetColors[0] : Colors.grey;
                           borderStatus = List<bool>.filled(targetColors.length, false);
                           isStartButtonDisabled = false;
+                          VeriSifirla();
                         });
                       },
                       child: Text('Restart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -377,13 +378,18 @@ class MyAppState extends State<MyApp> {
                 ],),
                 Row(children: [
                     ElevatedButton(
-                        onPressed: isAnimating ? null : oneCycleAnimation,
+                        onPressed: () {
+                          if(!isAnimating){
+                            oneCycleAnimation();
+                          }
+                        },
                         child: Text('One Cycle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       ),
                       ElevatedButton(
                         onPressed:() {
                           if(!isAnimating){
                             stepForwardAnimation();
+                            VeriSifirla();
                           }
                         },
                          child: Text('Step Forward', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
@@ -524,30 +530,6 @@ void onClick(int index) {
   }
 
 
-//   void stepForwardAnimation() {
-//   setState(() {
-//     if (currentColorIndex < targetColors.length - 1) {
-//       currentColorIndex++; 
-//       currentColor = targetColors[currentColorIndex];
-//       borderStatus = List<bool>.filled(targetColors.length, false);
-//       borderStatus[currentColorIndex] = true;
-//     }else {
-//       currentColorIndex = 0;
-//       currentColor = targetColors[currentColorIndex];
-//       borderStatus = List<bool>.filled(targetColors.length, false);
-//       borderStatus[currentColorIndex] = true;
-//     }
-//     if (currentColor == Color(0xffffffff)) {
-//       Future.delayed(Duration(milliseconds: timerValues[currentColorIndex])).then((_) {
-//         setState(() {
-//           stepForwardAnimation(); 
-//         });
-//       });
-//     }
-//   });
-// }
-
-
 void stepForwardAnimation() {
   if (!isAnimating) {  
     setState(() {
@@ -600,48 +582,53 @@ void backForwardAnimation() {
 }
 
 
-
-  void oneCycleAnimation() {
-  setState(() {
-    isAnimating = true;
-    dongude_start_kontrol = true;
-    currentColorIndex = 0; 
-  });
-  if (targetColors.isNotEmpty) {
-    List<Color> targetColorsCopy = List<Color>.from(targetColors);
-    currentColor = targetColorsCopy[0];
-    borderStatus = List<bool>.filled(targetColorsCopy.length, false);
-    borderStatus[0] = true;
-    Future<void> runAnimation(int index) async {
-      if (!isAnimating) {
-        return;
+void oneCycleAnimation() {
+  if (!isAnimating) {
+    setState(() {
+      isAnimating = true;
+      if (dongude_start_kontrol) {
+        currentColorIndex = 0;
+        currentColor = targetColors.isNotEmpty ? targetColors[0] : Colors.grey;
+        borderStatus = List<bool>.filled(targetColors.length, false);
+        borderStatus[currentColorIndex] = true;
+        dongude_start_kontrol = false;
       }
-      if (targetColorsCopy[index] == draggableColor_1) {
-        int sira = int.parse(ioIndexList[index].substring(1)) - 1;
-        if (onOff[sira] != onOffDegerleri[index]) {
-          isAnimating = false;
+    });
+    if (targetColors.isNotEmpty) {
+      List<Color> targetColorsCopy = List<Color>.from(targetColors);
+      void runAnimation(int index) async {
+        if (!isAnimating) {
           return;
         }
+        if (targetColorsCopy[index] == draggableColor_1) {
+          int sira = int.parse(ioIndexList[index].substring(1)) - 1;
+          if (onOff[sira] != onOffDegerleri[index]) {
+            animasyonadevam = false;
+          } else {
+            animasyonadevam = true;
+          }
+        }
+        setState(() {
+          currentColorIndex = index;
+          currentColor = targetColorsCopy[index];
+          borderStatus = List<bool>.filled(targetColorsCopy.length, false);
+          borderStatus[index] = true;
+        });
+        if (currentColor == Color(0xffffffff)) {
+          await Future.delayed(Duration(milliseconds: timerValues[index]));
+        }
+        await Future.delayed(Duration(milliseconds: delayMillis));
+        index = (index + 1) % targetColorsCopy.length;
+        if (index == 0 && animasyonadevam) {
+          setState(() {
+            isAnimating = false;
+          });
+        } else {
+          runAnimation(index);
+        }
       }
-      setState(() {
-        currentColorIndex = index;
-        currentColor = targetColorsCopy[index];
-        borderStatus = List<bool>.filled(targetColorsCopy.length, false);
-        borderStatus[index] = true;
-      });
-      if (currentColor == Color(0xffffffff)) {
-        await Future.delayed(Duration(milliseconds: timerValues[index]));
-      }
-      await Future.delayed(Duration(milliseconds: delayMillis));
-      index = (index + 1) % targetColorsCopy.length;
-      if (index == 0 && dongude_start_kontrol) {
-        dongude_start_kontrol = false;
-        isAnimating = false;
-        return;
-      }
-      runAnimation(index);
+      runAnimation(0); // sıfırıncı indeksten başlatır.
     }
-    runAnimation(0);
   }
 }
 
@@ -667,17 +654,21 @@ void backForwardAnimation() {
       if (targetColorsCopy[currentColorIndex] == draggableColor_1) {
         int sira = int.parse(ioIndexList[currentColorIndex].substring(1))-1 ;
         if (onOff[sira] != onOffDegerleri[currentColorIndex]) {
-          await Future.delayed(Duration(milliseconds: delayMillis));
-        }
-        else{
-          isAnimating = true ;
-        }
-      setState(() {
-        currentColorIndex = (currentColorIndex + 1) % targetColorsCopy.length;
-        currentColor = targetColorsCopy[currentColorIndex];
-        borderStatus = List<bool>.filled(targetColorsCopy.length, false);
-        borderStatus[currentColorIndex] = true;
-      });
+          animasyonadevam = false ;
+          VeriAl() ;
+      }
+      else{
+        animasyonadevam = true ;
+        VeriAl() ;
+      }
+      }
+      if (animasyonadevam) {
+        setState(() {
+          currentColorIndex = (currentColorIndex + 1) % targetColorsCopy.length;
+          currentColor = targetColorsCopy[currentColorIndex];
+          borderStatus = List<bool>.filled(targetColorsCopy.length, false);
+          borderStatus[currentColorIndex] = true;
+        });
 
       if (isAnimating && targetColorsCopy.isNotEmpty) {
         await Future.delayed(Duration(milliseconds: int.parse(delayMillis.toString())));
